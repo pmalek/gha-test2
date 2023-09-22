@@ -1,0 +1,34 @@
+name: release
+run-name: "Release ${{ format('{0}', github.event.inputs.tag) }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The version to release (e.g. v1.2.3)
+        required: true
+      latest:
+        description: Whether to tag this build latest
+        type: boolean
+        default: false
+      prerelease:
+        description: Whether to make a created release a pre-release
+        type: boolean
+        default: true
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: determine release type (release, prerelease)
+        id: release_type
+        shell: bash
+        run: |
+          if [[ "${{ github.event.inputs.prerelease }}" == "true" ]]; then
+            echo "type=prerelease" >> $GITHUB_OUTPUT
+          else
+            echo "type=release" >> $GITHUB_OUTPUT
+          fi
+
+      - run: echo type is ${{ steps.release_type.outputs.type }}
